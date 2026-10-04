@@ -801,6 +801,7 @@ p {
     line-height: 1.8;
     white-space: pre-wrap;
     word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .comment-actions {
@@ -1579,7 +1580,6 @@ footer span {
                     class="comment-input"
                     id="commentName"
                     type="text"
-                    maxlength="40"
                     placeholder="Tu nombre ♡"
                     autocomplete="name"
                     required
@@ -1707,8 +1707,6 @@ import {
     collection,
     addDoc,
     onSnapshot,
-    query,
-    orderBy,
     serverTimestamp,
     doc,
     updateDoc,
@@ -1745,10 +1743,11 @@ const db = getFirestore(app);
 const firebaseStatus =
     document.getElementById("firebaseStatus");
 
-firebaseStatus.textContent =
-    "Firebase conectado correctamente ✨";
+const commentStatus =
+    document.getElementById("commentStatus");
 
-firebaseStatus.classList.add("connected");
+firebaseStatus.textContent =
+    "Conectando con Firestore... ✨";
 
 
 /* =========================================
@@ -2241,6 +2240,7 @@ const firebaseComments =
 
 onSnapshot(
     statsRef,
+
     snapshot => {
 
         if (!snapshot.exists()) {
@@ -2275,8 +2275,19 @@ onSnapshot(
     error => {
 
         console.error(
-            "Error leyendo estadísticas:",
+            "ERROR LEYENDO ESTADÍSTICAS:",
             error
+        );
+
+        firebaseStatus.textContent =
+            "Firebase conectado, pero no puede leer las estadísticas.";
+
+        firebaseStatus.classList.remove(
+            "connected"
+        );
+
+        firebaseStatus.classList.add(
+            "error"
         );
     }
 );
@@ -2303,11 +2314,26 @@ async function saveHugToFirebase() {
             }
         );
 
+        console.log(
+            "Abrazo guardado correctamente en Firebase."
+        );
+
     } catch (error) {
 
         console.error(
-            "No se pudo guardar el abrazo:",
+            "ERROR GUARDANDO ABRAZO:",
             error
+        );
+
+        firebaseStatus.textContent =
+            "No se pudo guardar el abrazo en Firebase.";
+
+        firebaseStatus.classList.remove(
+            "connected"
+        );
+
+        firebaseStatus.classList.add(
+            "error"
         );
     }
 }
@@ -2391,32 +2417,10 @@ const commentSubmit =
         "commentSubmit"
     );
 
-const commentStatus =
-    document.getElementById(
-        "commentStatus"
-    );
-
 const commentsList =
     document.getElementById(
         "commentsList"
     );
-
-
-/* =========================================
-   ESCAPAR HTML
-   Evita que alguien meta HTML/JS
-   dentro de los comentarios.
-========================================= */
-
-function escapeHTML(value) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent = value;
-
-    return div.innerHTML;
-}
 
 
 /* =========================================
@@ -2469,24 +2473,63 @@ function renderComments(snapshot) {
 
     if (snapshot.empty) {
 
-        commentsList.innerHTML = `
-            <div class="comment-empty">
-                Todavía no hay comentarios... quizá el primero
-                sea el tuyo. ♡
-            </div>
-        `;
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "comment-empty";
+
+        empty.textContent =
+            "Todavía no hay comentarios... quizá el primero sea el tuyo. ♡";
+
+        commentsList.appendChild(
+            empty
+        );
 
         return;
     }
 
-    snapshot.forEach(
-        commentSnapshot => {
+    const comments =
+        snapshot.docs.map(
+            commentSnapshot => ({
+                id: commentSnapshot.id,
+                data: commentSnapshot.data()
+            })
+        );
+
+    /*
+        Ordenamos aquí en JavaScript
+        para evitar necesitar un índice
+        compuesto de Firestore.
+    */
+
+    comments.sort((a, b) => {
+
+        const dateA =
+            a.data.fecha &&
+            typeof a.data.fecha.toMillis === "function"
+                ? a.data.fecha.toMillis()
+                : 0;
+
+        const dateB =
+            b.data.fecha &&
+            typeof b.data.fecha.toMillis === "function"
+                ? b.data.fecha.toMillis()
+                : 0;
+
+        return dateB - dateA;
+    });
+
+    comments.forEach(
+        comment => {
 
             const data =
-                commentSnapshot.data();
+                comment.data;
 
             const commentId =
-                commentSnapshot.id;
+                comment.id;
 
             const card =
                 document.createElement(
@@ -2598,7 +2641,7 @@ function renderComments(snapshot) {
                     } catch (error) {
 
                         console.error(
-                            "Error al guardar corazón:",
+                            "ERROR GUARDANDO CORAZÓN:",
                             error
                         );
 
@@ -2634,36 +2677,47 @@ function renderComments(snapshot) {
    ESCUCHAR COMENTARIOS EN TIEMPO REAL
 ========================================= */
 
-const commentsQuery =
-    query(
-        collection(
-            db,
-            "comentarios"
-        ),
-        orderBy(
-            "fecha",
-            "desc"
-        )
+const commentsRef =
+    collection(
+        db,
+        "comentarios"
     );
 
 onSnapshot(
-    commentsQuery,
+    commentsRef,
+
     snapshot => {
+
+        console.log(
+            "Comentarios actualizados:",
+            snapshot.size
+        );
 
         renderComments(
             snapshot
         );
 
+        firebaseStatus.textContent =
+            "Firebase conectado correctamente ✨";
+
+        firebaseStatus.classList.remove(
+            "error"
+        );
+
+        firebaseStatus.classList.add(
+            "connected"
+        );
     },
+
     error => {
 
         console.error(
-            "Error cargando comentarios:",
+            "ERROR CARGANDO COMENTARIOS:",
             error
         );
 
         firebaseStatus.textContent =
-            "Firebase está conectado, pero revisa las reglas de Firestore.";
+            "Firebase está conectado, pero Firestore no permite leer los comentarios.";
 
         firebaseStatus.classList.remove(
             "connected"
@@ -2674,7 +2728,7 @@ onSnapshot(
         );
 
         commentStatus.textContent =
-            "No se pudieron cargar los comentarios.";
+            "No se pudieron cargar los comentarios. Revisa las reglas de Firestore.";
     }
 );
 
@@ -2692,29 +2746,34 @@ commentForm.addEventListener(
         const nombre =
             commentName.value.trim();
 
+        /*
+            NO se limita la longitud.
+            Solo comprobamos que exista
+            algún contenido.
+        */
+
+        const mensajeOriginal =
+            commentMessage.value;
+
         const mensaje =
-            commentMessage.value.trim();
+            mensajeOriginal.trim();
 
-        if (!nombre || !mensaje) {
+        if (!nombre) {
 
             commentStatus.textContent =
-                "Escribe tu nombre y tu comentario.";
+                "Escribe tu nombre.";
+
+            commentName.focus();
 
             return;
         }
 
-        if (nombre.length > 40) {
+        if (!mensaje) {
 
             commentStatus.textContent =
-                "El nombre es demasiado largo.";
+                "Escribe tu comentario.";
 
-            return;
-        }
-
-        if (mensaje.length > 500) {
-
-            commentStatus.textContent =
-                "El comentario es demasiado largo.";
+            commentMessage.focus();
 
             return;
         }
@@ -2731,13 +2790,10 @@ commentForm.addEventListener(
         try {
 
             await addDoc(
-                collection(
-                    db,
-                    "comentarios"
-                ),
+                commentsRef,
                 {
                     nombre: nombre,
-                    mensaje: mensaje,
+                    mensaje: mensajeOriginal,
                     corazones: 0,
                     fecha: serverTimestamp()
                 }
@@ -2753,7 +2809,7 @@ commentForm.addEventListener(
         } catch (error) {
 
             console.error(
-                "Error guardando comentario:",
+                "ERROR GUARDANDO COMENTARIO:",
                 error
             );
 
