@@ -308,8 +308,35 @@ p {
     filter:
         drop-shadow(0 0 7px #8adfff)
         drop-shadow(0 0 19px #668cff66);
-    animation: flowerGlow 4s ease-in-out infinite alternate;
+    animation: flowerGlow 4s ease-in-out infinite alternate, flowerBloom 1.8s cubic-bezier(.2,.8,.2,1) both;
+    transform-origin: 50% 70%;
 }
+
+.flower-card {
+    animation: flowerCardRise .95s cubic-bezier(.2,.8,.2,1) both;
+    isolation: isolate;
+}
+
+.flower-card::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: -40%;
+    pointer-events: none;
+    opacity: 0;
+    background: conic-gradient(from 0deg, transparent 0 72%, #a9eaff26 82%, transparent 91%);
+    animation: flowerSweep 8s linear infinite;
+}
+
+.flower-card:nth-child(1) { animation-delay: .08s; }
+.flower-card:nth-child(2) { animation-delay: .22s; }
+.flower-card:nth-child(3) { animation-delay: .36s; }
+.flower-card:nth-child(4) { animation-delay: .50s; }
+.flower-card:nth-child(1) svg { animation-delay: .15s, .05s; }
+.flower-card:nth-child(2) svg { animation-delay: -1s, .2s; }
+.flower-card:nth-child(3) svg { animation-delay: -2s, .35s; }
+.flower-card:nth-child(4) svg { animation-delay: -3s, .5s; }
+
 
 .flower-card:nth-child(2) svg {
     animation-delay: -1s;
@@ -341,6 +368,23 @@ p {
     margin: 30px auto 0;
     color: #cad9ed;
     font-style: italic;
+}
+
+@keyframes flowerBloom {
+    0% { opacity: 0; transform: scale(.35) rotate(-12deg); }
+    65% { opacity: 1; transform: scale(1.06) rotate(2deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes flowerCardRise {
+    from { opacity: 0; transform: translateY(28px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes flowerSweep {
+    0% { opacity: 0; transform: rotate(0deg); }
+    20%, 75% { opacity: .8; }
+    100% { opacity: 0; transform: rotate(360deg); }
 }
 
 @keyframes flowerGlow {
@@ -985,6 +1029,93 @@ footer span {
         scroll-behavior: auto !important;
     }
 }
+
+
+/* =========================================
+   SECRETO PARA NATI — MISMA PÁGINA
+========================================= */
+#secretHint {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 9998;
+    max-width: calc(100vw - 32px);
+    padding: 12px 17px;
+    border: 1px solid rgba(255,185,223,.42);
+    border-radius: 999px;
+    color: #ffe4f4;
+    background: rgba(10,8,23,.86);
+    box-shadow: 0 0 28px rgba(255,145,215,.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-size: 12px;
+    text-decoration: none;
+    letter-spacing: .2px;
+    cursor: pointer;
+    transition: transform .25s, box-shadow .25s, background .25s;
+}
+#secretHint:hover { transform: translateY(-3px); box-shadow: 0 0 34px rgba(255,145,215,.3); }
+#secretPage {
+    display: none;
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    padding: clamp(55px, 9vw, 110px) 20px 80px;
+    overflow: hidden;
+    color: #fff5fc;
+    background: radial-gradient(ellipse at 50% 10%, #321638 0%, transparent 46%), radial-gradient(ellipse at 10% 85%, #121b36 0%, transparent 45%), #070610;
+    border-top: 1px solid rgba(255,185,223,.18);
+}
+#secretPage.secret-visible { display: block; animation: secretArrival 1.1s ease both; }
+.secret-stars { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:-1; }
+.secret-stars i { position:absolute; width:3px; height:3px; border-radius:50%; background:#fff2fc; box-shadow:0 0 12px #ffb9df; animation: secretTwinkle 2.5s ease-in-out infinite alternate; }
+.secret-wrap { position:relative; width:min(760px,100%); margin:0 auto; }
+.secret-topline { text-align:center; color:#d9bce9; font-size:10px; letter-spacing:4px; text-transform:uppercase; }
+.secret-moon { width:82px; height:82px; margin:0 auto 30px; border-radius:50%; background:linear-gradient(140deg,#fffaff,#f4c9f2 62%,#bba8ff); box-shadow:0 0 35px #ffb9df55,0 0 90px #bba8ff2b; animation: secretFloat 5s ease-in-out infinite; }
+.secret-title { margin:22px 0 15px; text-align:center; font-family:Georgia,'Times New Roman',serif; font-size:clamp(44px,9vw,82px); font-weight:400; line-height:1; letter-spacing:-2px; }
+.secret-title em { display:block; margin-top:8px; color:#ffb9df; font-weight:400; }
+.secret-intro { max-width:500px; margin:0 auto 44px; color:#d1c5dc; text-align:center; font-size:14px; line-height:1.95; }
+.secret-flower-scene { position:relative; display:grid; place-items:center; min-height:260px; margin:0 auto 55px; border:1px solid #ffb9df1e; border-radius:25px; background:radial-gradient(ellipse at center,#702d6733,transparent 65%),#030309; overflow:hidden; }
+.secret-flower { position:relative; width:130px; height:155px; filter:drop-shadow(0 0 15px #ff8edb8a); animation: secretSway 5s ease-in-out infinite, secretBloom 1.8s cubic-bezier(.18,.8,.25,1) both; transform-origin:50% 90%; }
+.secret-flower-scene::before { content:""; position:absolute; width:210px; height:210px; border-radius:50%; background:radial-gradient(circle,#ff8edb2b 0%,#a76bff15 42%,transparent 72%); animation: secretAura 4s ease-in-out infinite alternate; }
+.secret-flower .petal { animation: petalPulse 3.8s ease-in-out infinite alternate; }
+.secret-flower .petal:nth-child(2n) { animation-delay:-1.1s; }
+.secret-flower .petal:nth-child(3n) { animation-delay:-2.2s; }
+.secret-flower .center { animation: centerSpark 2s ease-in-out infinite alternate; }
+.secret-flower .leaf { animation: leafSway 4s ease-in-out infinite alternate; transform-origin:100% 50%; }
+@keyframes secretBloom { 0% { opacity:0; transform:scale(.15) rotate(-18deg); filter:brightness(.2) drop-shadow(0 0 0 #ff8edb); } 65% { opacity:1; transform:scale(1.12) rotate(3deg); filter:brightness(1.5) drop-shadow(0 0 35px #ff8edb); } 100% { opacity:1; transform:scale(1) rotate(0); } }
+@keyframes secretAura { from { transform:scale(.78); opacity:.45; } to { transform:scale(1.18); opacity:1; } }
+@keyframes petalPulse { from { filter:brightness(.9); box-shadow:0 0 9px #ff87dd55; } to { filter:brightness(1.25); box-shadow:0 0 24px #ff87ddaa,0 0 42px #b87dff44; } }
+@keyframes centerSpark { from { transform:scale(.9); box-shadow:0 0 12px #fff1a8,0 0 22px #ffb3e9; } to { transform:scale(1.15); box-shadow:0 0 22px #fff1a8,0 0 44px #ffb3e9; } }
+@keyframes leafSway { from { rotate:-5deg; } to { rotate:8deg; } }
+.secret-flower .petal { position:absolute; left:49px; top:13px; width:32px; height:54px; transform-origin:50% 50px; border:1px solid #ffc8ef; border-radius:50% 50% 40% 40%; background:linear-gradient(180deg,#fff3fc,#ff8cdb 65%,#a64eb4); box-shadow:0 0 18px #ff87dd66; }
+.secret-flower .petal:nth-child(1){transform:rotate(0deg)} .secret-flower .petal:nth-child(2){transform:rotate(45deg)} .secret-flower .petal:nth-child(3){transform:rotate(90deg)} .secret-flower .petal:nth-child(4){transform:rotate(135deg)} .secret-flower .petal:nth-child(5){transform:rotate(180deg)} .secret-flower .petal:nth-child(6){transform:rotate(225deg)} .secret-flower .petal:nth-child(7){transform:rotate(270deg)} .secret-flower .petal:nth-child(8){transform:rotate(315deg)}
+.secret-flower .center { position:absolute; z-index:2; top:52px; left:55px; width:20px; height:20px; border-radius:50%; background:#fff7bc; box-shadow:0 0 15px #fff1a8,0 0 35px #ffb3e9; }
+.secret-flower .stem { position:absolute; left:64px; top:75px; width:3px; height:75px; border-radius:4px; background:linear-gradient(#a6f4d0,#366d64); transform:rotate(6deg); }
+.secret-flower .leaf { position:absolute; top:111px; left:40px; width:35px; height:16px; border:1px solid #a2f3d3; border-radius:100% 0 100% 0; transform:rotate(18deg); }
+.secret-flower-caption { position:absolute; bottom:17px; color:#e5bde2; font-family:Georgia,serif; font-style:italic; font-size:19px; }
+.secret-letter { padding:clamp(25px,6vw,52px); border:1px solid #ffbce228; border-radius:22px; background:linear-gradient(145deg,#1c1424e8,#100e1bf0); box-shadow:0 20px 80px #0003,inset 0 0 50px #ffbce207; }
+.secret-letter-mark { display:block; margin-bottom:20px; color:#ffb9df; text-align:center; font-size:30px; }
+.secret-letter p { color:#e7dce9; font-size:15px; line-height:2.05; font-weight:300; }
+.secret-letter .secret-salutation { color:#ffb9df; font-family:Georgia,serif; font-size:27px; font-style:italic; }
+.secret-letter strong { color:#ffe0f3; font-weight:600; }
+.secret-letter .secret-signature { margin-top:32px; color:#ffb9df; font-family:Georgia,serif; font-size:27px; font-style:italic; text-align:right; }
+.secret-quote { margin:60px auto; color:#f9dff3; font-family:Georgia,serif; font-size:clamp(27px,5vw,42px); line-height:1.45; text-align:center; }
+.secret-quote em { color:#ffb9df; }
+.secret-final { padding:45px 22px; border:1px solid #c6a9ff26; border-radius:22px; background:#b89cff09; text-align:center; }
+.secret-final h3 { margin:0 0 15px; color:#ffb9df; font-family:Georgia,serif; font-size:clamp(30px,6vw,43px); font-weight:400; }
+.secret-final p { color:#d1c5dc; font-size:14px; line-height:1.9; }
+.secret-button { display:inline-block; margin:18px 7px 0; padding:13px 21px; border:1px solid #ffb9df4a; border-radius:30px; color:#2a1128; background:linear-gradient(110deg,#ffe1f2,#e9ccff); cursor:pointer; transition:transform .2s,box-shadow .2s; }
+.secret-button:hover { transform:translateY(-2px); box-shadow:0 0 28px #f6aee933; }
+#secretHearts { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; }
+#secretBack { color:#f4cbe9; background:transparent; border-color:#ffb9df40; }
+@keyframes secretArrival { from{opacity:0; transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes secretTwinkle { from{opacity:.2;transform:scale(.7)} to{opacity:1;transform:scale(1.3)} }
+@keyframes secretFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+@keyframes secretSway { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+@media(max-width:520px){ #secretHint{right:10px;bottom:10px;padding:10px 13px;font-size:11px} #secretPage{padding-left:15px;padding-right:15px} .secret-letter p{font-size:14px} .secret-flower-scene{min-height:245px} }
+@media(prefers-reduced-motion:reduce){ #secretPage *,#secretPage *::before,#secretPage *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important} }
+
 </style>
 </head>
 
@@ -1677,12 +1808,197 @@ footer span {
     </div>
 </section>
 
+
+
+<!-- =========================================
+     SECCIÓN SECRETA PARA NATI
+     Se revela con Ctrl + Alt (sin salir de esta página)
+========================================= -->
+<section id="secretPage" aria-hidden="true" aria-labelledby="secretTitle">
+  <canvas id="secretHearts" aria-hidden="true"></canvas>
+  <div class="secret-stars" id="secretStars" aria-hidden="true"></div>
+  <div class="secret-wrap">
+    <div class="secret-topline">A little secret, made for one person</div>
+    <div class="secret-moon" aria-hidden="true" style="margin-top:28px"></div>
+    <h2 class="secret-title" id="secretTitle">Just for <em>Nati.</em></h2>
+    <p class="secret-intro">Hay cosas que quisiera que pudieras ver por un momento a través de mis ojos. Este pequeño rincón es mi forma de intentar enseñarte una de ellas.</p>
+
+    <div class="secret-flower-scene" aria-label="Una flor rosa luminosa sobre un cielo oscuro">
+      <div class="secret-flower" aria-hidden="true">
+        <i class="petal"></i><i class="petal"></i><i class="petal"></i><i class="petal"></i>
+        <i class="petal"></i><i class="petal"></i><i class="petal"></i><i class="petal"></i>
+        <i class="center"></i><i class="stem"></i><i class="leaf"></i>
+      </div>
+      <div class="secret-flower-caption">For my Moon Flower ♡</div>
+    </div>
+
+    <article class="secret-letter">
+      <span class="secret-letter-mark">♡</span>
+      <p class="secret-salutation">Mi querida Nati,</p>
+      <p>Hay una pregunta que quizá te has hecho más de una vez: <em>«¿Cómo llegué a gustarle tanto? ¿Qué vio en mí?»</em> Y ojalá pudiera sentarme a tu lado, tomarte de la mano y explicártelo sin que sintieras que tienes que encontrar una respuesta perfecta.</p>
+      <p>Porque, mi niña, <strong>no me gustaste porque fueras perfecta; me gustaste porque eres tú.</strong> No hubo una prueba que tuvieras que pasar ni una versión mejorada de ti que tuvieras que convertirte para merecer mi cariño. No tenías que ganarte un lugar fingiendo ser alguien más.</p>
+      <p>Me encantan esas pequeñas cosas que quizá tú ni siquiera notas. Tu risa, que se me queda en la memoria incluso después de que termina. Tu forma de hablar, las cosas que te hacen ilusión, tus ocurrencias, tu manera de ser. Me encanta descubrir detalles nuevos de ti y darme cuenta de que todavía hay muchísimo que quiero conocer.</p>
+      <p>A veces me pregunto si sabes lo bonito que es para mí que seas parte de mis días. Puedes decir algo que para ti fue cualquier cosa y yo quedarme recordándolo después. Puedes reírte sin pensar demasiado y convertir ese instante en uno de esos recuerdos que quisiera guardar con cuidado. <strong>No tienes que estar intentando ser adorable para que yo encuentre algo adorable en ti.</strong></p>
+      <p>Y quiero que entiendas algo: no estoy mirando hacia ti pensando en alguien con quien compararte. No estoy esperando que te parezcas a otra persona. <strong>Cuando te digo que eres la única en mis ojos, hablo del lugar que tienes en mis sentimientos y de que eres a ti a quien elijo querer de esta manera.</strong> No necesito que seas otra chica. Me interesa seguir conociéndote a ti, con tus ideas, tus sueños, tus días buenos y tus días complicados.</p>
+      <p>Ojalá pudieras verte un ratito desde mi perspectiva. Ojalá pudieras escuchar tu risa como yo la recuerdo, notar la luz que tienen esos pequeños gestos tuyos y entender por qué me nace decirte que eres preciosa incluso cuando tú no consigues verlo. No porque mi opinión tenga que definirte, sino porque quisiera que pudieras tratarte con la misma ternura con la que yo pienso en ti.</p>
+      <p>No tienes que estar feliz todo el tiempo para que me gustes. No tienes que tener siempre las palabras correctas, ni ser fuerte a cada segundo, ni esconder las inseguridades que a veces aparecen. Puedes ser tú, sin actuar, sin competir, sin sentir que tienes que demostrarme algo cada día.</p>
+      <p>Y sé que unas palabras bonitas no pueden hacer que todas las dudas desaparezcan de golpe. Por eso no quiero que esta carta sea solamente algo que lees una vez y ya. Quiero que mis acciones también te lo demuestren: que te escucho, que respeto lo que sientes, que me importan tus pensamientos y que tu forma de ser no es algo que tengas que disculpar.</p>
+      <p>¿Quieres saber cómo llegaste a gustarme tanto? No fue por una sola cosa. Fue por un montón de pequeñas cosas que, juntas, se volvieron tú. Y mientras más te conozco, más razones encuentro para agradecer que nuestros caminos se cruzaran.</p>
+      <p><strong>No tienes que resolver el misterio de por qué te quiero. No tienes que convertirte en alguien distinta para entenderlo. No tienes que ser la chica más perfecta del mundo.</strong> Eres Nati. Y eso es precisamente a quien quiero seguir conociendo, cuidando y eligiendo.</p>
+      <p>Si algún día vuelves a preguntarte «¿qué vio en mí?», quisiera que recordaras esta carta. No para que dependas de mis ojos para reconocer tu valor, sino para que te des permiso de mirar dentro de ti con un poquito más de cariño. Hay belleza en ti que no desaparece cuando no consigues verla.</p>
+      <p>Y si pudiera dejarte una sola respuesta, sería esta: <strong>no tuviste que hacer algo extraordinario para llegar a mi corazón. Lo tocaste siendo tú, poquito a poquito, hasta que un día me di cuenta de cuánto significabas para mí.</strong></p>
+      <p>Gracias por ser parte de mi historia, Nati. No sé cómo escribir todas las cosas que siento en una sola carta, pero sí sé que quería que tuvieras un lugar al que volver cuando necesitaras recordar lo especial que eres para mí.</p>
+      <p class="secret-signature">Con todo mi cariño,<br>el chico al que le encantas. ♡</p>
+    </article>
+
+    <div class="secret-quote">“In a universe full of stars,<br><em>you're still my favorite.</em>”</div>
+
+    <div class="secret-final">
+      <h3>Una última cosita, Nati…</h3>
+      <p>No tienes que llorar para demostrar que esto te llegó al corazón, ni tienes que responderme de una manera especial. Solo quería que supieras cuánto significas para mí.</p>
+      <button type="button" class="secret-button" id="secretHeartButton">Llenar esto de corazoncitos ♡</button>
+      <button type="button" class="secret-button" id="secretBack">Volver a nuestro universo ✦</button>
+      <p id="secretReply" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer>
     <p>Made with <span>♥</span>, just for Natalia.</p>
     <p>A little universe that will always remind me of you. ✨</p>
 </footer>
+
+
+
+<!-- Acceso secreto: no crea otra página ni recarga el sitio -->
+<a href="#secretPage" id="secretHint" aria-controls="secretPage" aria-expanded="false">✦ Psst, Nati… Ctrl + Alt para ver lo secreto ✦</a>
+<script>
+(() => {
+  const hint = document.getElementById('secretHint');
+  const secret = document.getElementById('secretPage');
+  const back = document.getElementById('secretBack');
+  const heartButton = document.getElementById('secretHeartButton');
+  const reply = document.getElementById('secretReply');
+  const stars = document.getElementById('secretStars');
+  const canvas = document.getElementById('secretHearts');
+  const ctx = canvas.getContext('2d');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let opened = false;
+  let particles = [];
+
+  for (let i = 0; i < 75; i++) {
+    const star = document.createElement('i');
+    star.style.left = (Math.random() * 100) + '%';
+    star.style.top = (Math.random() * 100) + '%';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.opacity = (Math.random() * .75 + .2).toFixed(2);
+    stars.appendChild(star);
+  }
+
+  function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(secret.clientWidth, window.innerWidth) * dpr;
+    canvas.height = Math.max(secret.scrollHeight, window.innerHeight) * dpr;
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function revealSecret() {
+    if (opened) {
+      secret.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth', block: 'start'});
+      return;
+    }
+    opened = true;
+    secret.classList.add('secret-visible');
+    secret.setAttribute('aria-hidden', 'false');
+    hint.setAttribute('aria-expanded', 'true');
+    hint.textContent = '♡ El secreto de Nati está aquí';
+    requestAnimationFrame(() => {
+      resizeCanvas();
+      secret.scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth', block: 'start'});
+    });
+  }
+
+  function closeSecret() {
+    if (!opened) return;
+    secret.classList.remove('secret-visible');
+    secret.setAttribute('aria-hidden', 'true');
+    hint.setAttribute('aria-expanded', 'false');
+    hint.textContent = '✦ Psst, Nati… Ctrl + Alt para ver lo secreto ✦';
+    opened = false;
+    document.getElementById('inicio').scrollIntoView({behavior: reducedMotion ? 'auto' : 'smooth', block: 'start'});
+  }
+
+  hint.addEventListener('click', event => {
+    event.preventDefault();
+    revealSecret();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.ctrlKey && event.altKey && !event.repeat) {
+      event.preventDefault();
+      revealSecret();
+    }
+    if (event.key === 'Escape' && opened) closeSecret();
+  });
+
+  back.addEventListener('click', closeSecret);
+
+  function drawHeart(x, y, size, alpha) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(size / 20, size / 20);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#ffb9df';
+    ctx.beginPath();
+    ctx.moveTo(0, 7);
+    ctx.bezierCurveTo(-18, -4, -10, -16, 0, -7);
+    ctx.bezierCurveTo(10, -16, 18, -4, 0, 7);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animateHearts() {
+    if (!opened) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    particles = particles.filter(p => p.life > 0 && p.y > -30);
+    for (const p of particles) {
+      drawHeart(p.x, p.y, p.size, Math.min(1, p.life / 45));
+      if (!reducedMotion) {
+        p.x += p.dx;
+        p.y -= p.speed;
+        p.life--;
+      }
+    }
+    if (!reducedMotion) requestAnimationFrame(animateHearts);
+  }
+
+  heartButton.addEventListener('click', () => {
+    if (!opened) revealSecret();
+    const width = Math.max(secret.clientWidth, window.innerWidth);
+    const height = Math.max(secret.scrollHeight, window.innerHeight);
+    for (let i = 0; i < 42; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: height * (.55 + Math.random() * .35),
+        size: 9 + Math.random() * 15,
+        dx: (Math.random() - .5) * 2,
+        speed: .6 + Math.random() * 1.8,
+        life: 75 + Math.random() * 55
+      });
+    }
+    reply.textContent = 'Un montón de cariño, solo para ti. ♡';
+    resizeCanvas();
+    animateHearts();
+  });
+
+  window.addEventListener('resize', () => { if (opened) resizeCanvas(); });
+})();
+</script>
 
 <!-- =========================================
      FIREBASE + JAVASCRIPT
